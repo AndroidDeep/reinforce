@@ -18,8 +18,8 @@ class ReinforcePlugin implements Plugin<Project>{
     @Override
     void apply(Project project) {
         //获取Android SDK路径
-        def props = new java.util.Properties()
-        props.load( new java.io.FileInputStream(project.rootDir.toString() + "/local.properties"))
+        def props = new Properties()
+        props.load( new FileInputStream(project.rootDir.toString() + "/local.properties"))
         def ANDROID_HOME = props.getProperty("sdk.dir")
 
         //获取buildToolsVersion
@@ -46,7 +46,7 @@ class ReinforcePlugin implements Plugin<Project>{
                 println("assemble: " + assemble)
                 project.task("assemble${variantName}Reinforce").dependsOn(assemble).doFirst {
                     println("doFirst")
-                    println("apk目录: " + project.reinforce.apkDir)
+                    println("apk目录: " + project.reinforce.apkPath)
                     println("加固之后apk存放目录: " + project.reinforce.reinforcedApkDir)
 
                     println("签名文件路径: " + project.reinforce.keystorePath)
@@ -73,11 +73,11 @@ class ReinforcePlugin implements Plugin<Project>{
 
                 }.doLast {
                     //检测apk目录是否存在
-                    String apkDirPath = project.reinforce.apkDir
-                    File apkDir = new File(apkDirPath)
-                    if(!apkDir.exists() || !apkDir.isDirectory()){
-                        project.logger.error("apkDir不存在或者apkDir不是一个目录")
-                        throw new ProjectConfigurationException("apkDir不存在或者apkDir不是一个目录")
+                    String apkDirPath = project.reinforce.apkPath
+                    File apkFile = new File(apkDirPath)
+                    if(!apkFile.exists()){
+                        project.logger.error("apkFile不存在")
+                        throw new ProjectConfigurationException("apkFile不存在")
                     }
                     //检测加固之后的存放目录，如果不存在创建一个目录
                     String reinforcedApkDirPath = project.reinforce.reinforcedApkDir
@@ -88,31 +88,26 @@ class ReinforcePlugin implements Plugin<Project>{
                         reinforcedApkDir.setReadable(true,false)
                     }
                     println("加固包存放目录是否可读写: " + (reinforcedApkDir.canRead() && reinforcedApkDir.canWrite()))
-                    loopFile(project,apksignerPath,zipalignPath,apkDir)
+                    loopFile(project,apksignerPath,zipalignPath,apkFile)
 
                 }
             }
         }
     }
-    void loopFile(Project project, def apksignerPath, def zipalignPath,File dir){
-        //遍历加固
-        for(File file : dir.listFiles()) {
-            if(file.exists()){
-                if(file.isDirectory()){
-                    loopFile(project,apksignerPath,zipalignPath,file)
-                }else if(file.isFile() && file.getName().endsWith(".apk") && !file.getName().endsWith("jiagu_sign.apk") && !file.getName().endsWith("legu.apk")){
-                    println("apk路径： " + file.getAbsolutePath())
-                    //360加固
-                    if(checkQihu(project)){
-                        println("开始360加固...")
-                        qihuReinforce(project,file)
-                    }
-                    //乐固加固
-                    if(checkLegu(project)){
-                        println("开始乐固加固...")
-                        leguReinforce(project,apksignerPath,zipalignPath,file)
-                    }
-                }
+    void loopFile(Project project, def apksignerPath, def zipalignPath,File file){
+        //加固
+        if (file.isFile() && file.getName().endsWith(".apk") && !file.getName().endsWith("jiagu_sign.apk") &&
+                !file.getName().endsWith("legu.apk")) {
+            println("apk路径： " + file.getAbsolutePath())
+            //360加固
+            if (checkQihu(project)) {
+                println("开始360加固...")
+                qihuReinforce(project, file)
+            }
+            //乐固加固
+            if (checkLegu(project)) {
+                println("开始乐固加固...")
+                leguReinforce(project, apksignerPath, zipalignPath, file)
             }
         }
     }

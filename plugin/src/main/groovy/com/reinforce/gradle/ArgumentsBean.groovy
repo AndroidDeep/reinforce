@@ -7,7 +7,7 @@ class ArgumentsBean{
     def keystorePassword = ""
     def alias = ""
     def aliasPassword = ""
-    def apkDir = ""
+    def apkPath = ""
     def reinforcedApkDir = ""
     def enableQihu = false
     def enableLegu = false
@@ -50,8 +50,8 @@ class ArgumentsBean{
         this.aliasPassword = aliasPassword
     }
 
-    void apkDir(apkDir) {
-        this.apkDir = apkDir
+    void apkPath(apkPath) {
+        this.apkPath = apkPath
     }
 
     void reinforcedApkDir(reinforcedApkDir) {
