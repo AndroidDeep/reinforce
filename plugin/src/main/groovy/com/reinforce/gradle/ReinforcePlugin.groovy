@@ -239,7 +239,7 @@ class ReinforcePlugin implements Plugin<Project>{
         println("reinforceCommand: " + reinforceCommand)
         CommandResult reinforceCommandResult = executeCommand(reinforceCommand)
         if((reinforceCommandResult.errorStr != null && reinforceCommandResult.errorStr.trim().length() > 0) || !reinforceCommandResult.outputStr.contains("加固包下载成功")){
-            project.logger.error("乐固加固失败")
+            project.logger.error("乐固加固失败 Reason: ${reinforceCommandResult.errorStr}")
             throw new RuntimeException("乐固加固失败")
         }
         String reinforceApkPath = project.reinforce.reinforcedApkDir + File.separator + fileName.replace(".apk","_legu.apk")
