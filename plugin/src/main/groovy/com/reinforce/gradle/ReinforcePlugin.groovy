@@ -225,7 +225,7 @@ class ReinforcePlugin implements Plugin<Project>{
             throw new RuntimeException("360加固失败")
         }
 
-        String reinforceApkPath = project.reinforce.reinforcedApkDir + File.separator + fileName.replace(".apk","${project.reinforce.appVersionCode}_jiagu.apk")
+        String reinforceApkPath = project.reinforce.reinforcedApkDir + File.separator + file.getName().replace(".apk","${project.reinforce.appVersionCode}_jiagu.apk")
         println("reinforceApkPath: " + reinforceApkPath)
 
         //对齐(zipalign可以在V1签名后执行,但zipalign不能在V2签名后执行,只能在V2签名之前执行)
