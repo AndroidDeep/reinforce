@@ -102,7 +102,7 @@ class ReinforcePlugin implements Plugin<Project>{
             //360加固
             if (checkQihu(project)) {
                 println("开始360加固...")
-                qihuReinforce(project, file)
+                qihuReinforce(project, apksignerPath, zipalignPath, file)
             }
             //乐固加固
             if (checkLegu(project)) {
@@ -181,7 +181,7 @@ class ReinforcePlugin implements Plugin<Project>{
      * @param project
      * @param file apk文件对象
      */
-    void qihuReinforce(Project project, File file){
+    void qihuReinforce(Project project, def apksignerPath, def zipalignPath, File file){
         String loginCommand = "java -jar " +
                 project.reinforce.qihu.sourcePath +
                 " -login " +
@@ -225,7 +225,7 @@ class ReinforcePlugin implements Plugin<Project>{
             throw new RuntimeException("360加固失败")
         }
 
-        String reinforceApkPath = project.reinforce.reinforcedApkDir + File.separator + file.getName().replace(".apk","${project.reinforce.appVersionCode}_jiagu.apk")
+        String reinforceApkPath = project.reinforce.reinforcedApkDir + File.separator + file.getName().replace(".apk","_${project.reinforce.appVersionCode}_jiagu.apk")
         println("reinforceApkPath: " + reinforceApkPath)
 
         //对齐(zipalign可以在V1签名后执行,但zipalign不能在V2签名后执行,只能在V2签名之前执行)
