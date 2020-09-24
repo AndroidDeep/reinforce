@@ -127,6 +127,9 @@ class ReinforcePlugin implements Plugin<Project>{
             }else if(checkStringIsEmpty(project.reinforce.qihu.password)){
                 project.logger.error("没有配置360账户密码")
                 return false
+            }else if(checkStringIsEmpty(project.reinforce.appVersionCode)){
+                project.logger.error("没有配置app版本号")
+                return false
             }
             return true
         }
@@ -214,14 +217,38 @@ class ReinforcePlugin implements Plugin<Project>{
                 " -jiagu " +
                 file.getAbsolutePath() +
                 " " +
-                project.reinforce.reinforcedApkDir +
-                " -autosign"
+                project.reinforce.reinforcedApkDir
         println("360加固命令： " + jiaguCommand)
         CommandResult jiaguCommandResult = executeCommand(jiaguCommand)
-        if((jiaguCommandResult.errorStr != null && jiaguCommandResult.errorStr.trim().length() > 0) || !jiaguCommandResult.outputStr.contains("任务完成_已签名")) {
+        if((jiaguCommandResult.errorStr != null && jiaguCommandResult.errorStr.trim().length() > 0) || !jiaguCommandResult.outputStr.contains("任务完成")) {
             project.logger.error("360加固失败")
             throw new RuntimeException("360加固失败")
         }
+
+        String reinforceApkPath = project.reinforce.reinforcedApkDir + File.separator + fileName.replace(".apk","${project.reinforce.appVersionCode}_jiagu.apk")
+        println("reinforceApkPath: " + reinforceApkPath)
+
+        //对齐(zipalign可以在V1签名后执行,但zipalign不能在V2签名后执行,只能在V2签名之前执行)
+        String zipalignedApkPath = reinforceApkPath.replace(".apk","_zipaligned.apk")
+        println("zipalignedApkPath: " + zipalignedApkPath)
+
+        String zipalignedCommand = zipalignPath + " -v 4 " + reinforceApkPath + " " + zipalignedApkPath
+        CommandResult zipalignedResult = executeCommand(zipalignedCommand)
+        if(zipalignedResult.errorStr != null && zipalignedResult.errorStr.trim().length() > 0){
+            project.logger.error("对齐失败")
+            throw new RuntimeException("对齐失败")
+        }
+        //重签名
+        String signedApkPath = zipalignedApkPath.replace(".apk","_signed.apk")
+        println("signedApkPath: " + signedApkPath)
+        String signCommand = apksignerPath + " sign --ks " + project.reinforce.keystorePath + " --ks-key-alias " + project.reinforce.alias + " --ks-pass pass:" + project.reinforce.keystorePassword + " --key-pass pass:" + project.reinforce.aliasPassword + " --out " + signedApkPath + " " + zipalignedApkPath
+        println("signCommand: " + signCommand)
+        CommandResult signedResult = executeCommand(signCommand)
+        if(signedResult.errorStr != null && signedResult.errorStr.trim().length() > 0){
+            project.logger.error("重签名失败")
+            throw new RuntimeException("重签名失败")
+        }
+
         println("360加固完成")
     }
     /**

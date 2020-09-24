@@ -9,6 +9,7 @@ class ArgumentsBean{
     def aliasPassword = ""
     def apkPath = ""
     def reinforcedApkDir = ""
+    def appVersionCode = ""
     def enableQihu = false
     def enableLegu = false
 
@@ -56,6 +57,10 @@ class ArgumentsBean{
 
     void reinforcedApkDir(reinforcedApkDir) {
         this.reinforcedApkDir = reinforcedApkDir
+    }
+
+    void appVersionCode(appVersionCode){
+        this.appVersionCode = appVersionCode
     }
 
     void enableQihu(enableQihu) {
