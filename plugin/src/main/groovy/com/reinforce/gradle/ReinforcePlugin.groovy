@@ -241,7 +241,7 @@ class ReinforcePlugin implements Plugin<Project>{
         //重签名
         String signedApkPath = reinforceApkPath.replace(".apk","_signed.apk")
         println("signedApkPath: " + signedApkPath)
-        String signCommand = apksignerPath + " sign --ks " + project.reinforce.keystorePath + " --ks-key-alias " + project.reinforce.alias + " --ks-pass pass:" + project.reinforce.keystorePassword + " --key-pass pass:" + project.reinforce.aliasPassword + " --out " + signedApkPath + " " + zipalignedApkPath
+        String signCommand = apksignerPath + " sign --ks " + project.reinforce.keystorePath + " --ks-key-alias " + project.reinforce.alias + " --ks-pass pass:" + project.reinforce.keystorePassword + " --key-pass pass:" + project.reinforce.aliasPassword + " --out " + signedApkPath + " " + reinforceApkPath
         println("signCommand: " + signCommand)
         CommandResult signedResult = executeCommand(signCommand)
         if(signedResult.errorStr != null && signedResult.errorStr.trim().length() > 0){
