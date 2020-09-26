@@ -228,18 +228,18 @@ class ReinforcePlugin implements Plugin<Project>{
         String reinforceApkPath = project.reinforce.reinforcedApkDir + File.separator + file.getName().replace(".apk","_${project.reinforce.appVersionCode}_jiagu.apk")
         println("reinforceApkPath: " + reinforceApkPath)
 
-        //对齐(zipalign可以在V1签名后执行,但zipalign不能在V2签名后执行,只能在V2签名之前执行)
-        String zipalignedApkPath = reinforceApkPath.replace(".apk","_zipaligned.apk")
-        println("zipalignedApkPath: " + zipalignedApkPath)
-
-        String zipalignedCommand = zipalignPath + " -v 4 " + reinforceApkPath + " " + zipalignedApkPath
-        CommandResult zipalignedResult = executeCommand(zipalignedCommand)
-        if(zipalignedResult.errorStr != null && zipalignedResult.errorStr.trim().length() > 0){
-            project.logger.error("对齐失败")
-            throw new RuntimeException("对齐失败")
-        }
+//        //对齐(zipalign可以在V1签名后执行,但zipalign不能在V2签名后执行,只能在V2签名之前执行)
+//        String zipalignedApkPath = reinforceApkPath.replace(".apk","_zipaligned.apk")
+//        println("zipalignedApkPath: " + zipalignedApkPath)
+//
+//        String zipalignedCommand = zipalignPath + " -v 4 " + reinforceApkPath + " " + zipalignedApkPath
+//        CommandResult zipalignedResult = executeCommand(zipalignedCommand)
+//        if(zipalignedResult.errorStr != null && zipalignedResult.errorStr.trim().length() > 0){
+//            project.logger.error("对齐失败")
+//            throw new RuntimeException("对齐失败")
+//        }
         //重签名
-        String signedApkPath = zipalignedApkPath.replace(".apk","_signed.apk")
+        String signedApkPath = reinforceApkPath.replace(".apk","_signed.apk")
         println("signedApkPath: " + signedApkPath)
         String signCommand = apksignerPath + " sign --ks " + project.reinforce.keystorePath + " --ks-key-alias " + project.reinforce.alias + " --ks-pass pass:" + project.reinforce.keystorePassword + " --key-pass pass:" + project.reinforce.aliasPassword + " --out " + signedApkPath + " " + zipalignedApkPath
         println("signCommand: " + signCommand)
